@@ -4,10 +4,39 @@ import urllib
 import os
 import glob
 from PIL import Image
+import sys
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 
 opener = urllib.request.build_opener()
 opener.addheaders = [('User-Agent','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11')]
 urllib.request.install_opener(opener)
+
+class NW_input:
+    title = ''
+    startEpi = ''
+    endEpi = ''
+    def put_title(self, string):
+        self.title = string
+    def put_start(self, string):
+        self.startEpi = string
+    def put_end(self, string):
+        self.endEpi = string
+
+class NW_signal(QObject):
+    noMatch = pyqtSignal()
+    epiFin = pyqtSignal()
+    wtFin = pyqtSignal()
+    i = 0
+    def no_match(self):
+        self.noMatch.emit()
+    def epi_fin(self, epi):
+        self.i = epi
+        self.epiFin.emit()
+    def wt_fin(self):
+        self.wtFin.emit()
+
+signal = NW_signal()
 
 def download_NW(name, startEpi, endEpi):
     titleId = search(name)
@@ -35,8 +64,8 @@ def download_NW(name, startEpi, endEpi):
             url = img_url+f'{j}'+'.jpg'
             location = epidir+'/'+f'{j}'.zfill(3)+".jpg"
             urllib.request.urlretrieve(url, location)
-        print(name+f' {i}화 다운로드 완료\n')
-    print(name+' 다운로드 완료\n')
+        signal.epi_fin(i)
+    signal.wt_fin()
 
 # 이미지 주소 찾기
 def get_img_url(images):
@@ -68,4 +97,5 @@ def search(name):
     for webtoon in fins.select('li > div.thumb > a'):
         if webtoon['title'] == name:
             return webtoon['href'].replace('/webtoon/list.nhn?titleId=','')
-    return print("해당되는 웹툰을 찾을 수 없습니다.")
+    return signal.no_match()
+
