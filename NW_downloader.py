@@ -16,9 +16,9 @@ urllib.request.install_opener(opener)
 def NW_download(name, startEpi, endEpi):
     titleId = NW_search(name)
     # 웹툰 디렉터리 생성
-    wtdir = './downloads/'+name
+    wtdir = './naver webtoon downloader/'+name
     if not os.path.exists(wtdir):
-        os.mkdir(wtdir)
+        os.makedirs(wtdir, exist_ok=True)
     for i in range(int(startEpi), int(endEpi)+1):
         # html에서 필요한부분 가져오기
         response = urlopen(NW_url(titleId,f'{i}'))
@@ -35,11 +35,13 @@ def NW_download(name, startEpi, endEpi):
         num_of_images = get_N_Image(images,titleId,i)
         img_url.lstrip('https://image-comic.pstatic.net/webtoon/')
         # 이미지 다운로드
+        print(epidir)
         for j in range(1,int(num_of_images)+1):
             url = img_url+f'{j}'+'.jpg'
-            location = epidir+'/'+f'{j}'.zfill(3)+".jpg"
+            file_name = '/'+f'{j}'.zfill(3)+".jpg"
+            location = epidir+file_name
             urllib.request.urlretrieve(url, location)
-            print(location+' <- '+url)
+            print('    '+file_name+' <- '+url)
         print(name+f' {i}화 다운로드 완료\n')
     print(name+' 다운로드 완료\n')
         
