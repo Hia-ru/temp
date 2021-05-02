@@ -9,13 +9,8 @@ opener = urllib.request.build_opener()
 opener.addheaders = [('User-Agent','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11')]
 urllib.request.install_opener(opener)
 
-# def get_weekday(wt_a_tag):
-#     weekday = wt_a_tag['href'][-3:]
-#     return weekday
 
-NW_download()
-
-def NW_download(titleId, startEpi, endEpi):
+def NW_download(titleId, name, startEpi, endEpi):
     for i in range(startEpi, endEpi+1):
         # html에서 필요한부분 가져오기
         response = urlopen(NW_url(titleId,i))
@@ -23,7 +18,7 @@ def NW_download(titleId, startEpi, endEpi):
         title = soup.select_one('div.tit_area > div.view > h3').string
         images =soup.find("div", attrs={'class':'wt_viewer'})
         # 각 화별 디렉터리 생성
-        epidir = wtdir+f'/{i}. '+title
+        epidir = './naver webtoon downloader/'+name+f'/{i}. '+title
         if not os.path.exists(epidir):
             os.mkdir(epidir)
         # 이미지 다운로드
@@ -48,15 +43,16 @@ def get_img_url(images):
 # 이미지 개수 얻기
 def get_N_Image(images,titleId,epi):
     num_of_images = images.find_all('img')[-1]['src'].rstrip('.jpg') \
-        .replace('https://image-comic.pstatic.net/webtoon/'+titleId+'/'+f'{epi}'+'/','')
+        .replace('https://image-comic.pstatic.net/webtoon/'+f'{titleId}'+'/'+f'{epi}'+'/','')
     return int(num_of_images.replace(num_of_images[0:55], ''))
 
 def NW_url(titleId, epi):
     url = 'https://comic.naver.com/webtoon/detail.nhn?titleId='+f'{titleId}'+'&no='+f'{epi}'
     return url
 
+NW_download(748105, '독립일기', 11, 14)
 
 
 #할 것
 #볼 수 있는 웹페이지 만들기
-#봇 만들기or매일 일정시각에 자동실행
+
