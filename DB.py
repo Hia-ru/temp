@@ -2,9 +2,11 @@ import sqlite3
 from NW_downloader import NW_download
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+from NW_downloader import NW_download
 import os
 import glob
 import shutil
+import time
 
 class DB:
     c = None
@@ -34,6 +36,16 @@ class DB:
         if not os.path.exists(wtdir):
             os.makedirs(wtdir, exist_ok=True)
         print(name+' 추가됨')
+        if weekday == 'end':
+            YorN = input('지금 다운로드하시겠습니까?\n지금 다운로드하지 않으면 수동으로 다운로드해야 합니다. Y/N: ')
+            if (YorN == 'Y') or (YorN == 'y'):
+                current = NW_currentEpi(titleId,weekday)
+                NW_download(titleId, name, 1 ,current)
+        else:
+            YorN = input('지금 다운로드하시겠습니까?\n지금 다운로드하지 않으면 00:01에 다운로드됩니다. Y/N: ')
+            if (YorN == 'Y') or (YorN == 'y'):
+                current = NW_currentEpi(titleId,weekday)
+                NW_download(titleId, name, 1 ,current)
     
     def delete_webtoon(self, name):
         self.c.execute('DELETE FROM webtoon_list WHERE name = ?',(name,))
@@ -41,6 +53,22 @@ class DB:
         if os.path.exists(wtdir):
             shutil.rmtree(wtdir)
         print(name+' 삭제됨')
+
+    def match(self, name):
+        self.c.execute('SELECT * FROM webtoon_list')
+        webtoons = self.c.fetchall()
+        for w in webtoons:
+            if w[2] == name:
+                return True
+        return False
+    
+    def view_list(self):
+        self.c.execute('SELECT * FROM webtoon_list')
+        webtoons = self.c.fetchall()
+        for w in webtoons:
+            print(w)
+        print('\n')
+
 db = DB()
 db.start()
 
@@ -62,20 +90,13 @@ def NW_search(name):
     for webtoon in fins.select('li > div.thumb > a'):
         if webtoon['title'] == name:
             return (webtoon['href'].replace('/webtoon/list.nhn?titleId=',''), 'end')
-    return print("해당되는 웹툰을 찾을 수 없습니다.")
+    print("해당되는 웹툰을 찾을 수 없습니다.")
+    return time.sleep(1)
 
-
-# 웹툰을 추가하는 쓰레드
-# while True:
-#     name = input('name or -D: ')
-#     if name != '-D':
-#         db.new_webtoon(name)
-#     elif name == '-D':
-#         name = input('name or <-: ')
-#         if name != '<-':
-#             db.delete_webtoon(name)
-#         elif name == '<-':
-#             continue
-#     continue
-
+def NW_currentEpi(titleId, weekday):
+    response = urlopen('https://comic.naver.com/webtoon/list.nhn?titleId='+f'{titleId}'+'&weekday='+weekday)
+    soup = BeautifulSoup(response, 'html.parser')
+    current = soup.select_one('.viewList > tr > td.title > a')['href']
+    current = current.replace(current[-12:],'').replace('/webtoon/detail.nhn?titleId='+f'{titleId}'+'&no=','')
+    return int(current)
 

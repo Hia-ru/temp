@@ -52,9 +52,3 @@ def get_N_Image(images,titleId,epi):
 def NW_url(titleId, epi):
     url = 'https://comic.naver.com/webtoon/detail.nhn?titleId='+f'{titleId}'+'&no='+f'{epi}'
     return url
-
-
-
-#할 것
-#볼 수 있는 웹페이지 만들기
-
