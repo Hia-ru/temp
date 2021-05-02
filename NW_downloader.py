@@ -3,7 +3,6 @@ from urllib.request import Request, urlopen
 import urllib
 import os
 import glob
-from PIL import Image
 
 opener = urllib.request.build_opener()
 opener.addheaders = [('User-Agent','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11')]
@@ -16,9 +15,13 @@ def NW_download(titleId, name, startEpi, endEpi):
         response = urlopen(NW_url(titleId,i))
         soup = BeautifulSoup(response, 'html.parser')
         title = soup.select_one('div.tit_area > div.view > h3').string
+        title = title.replace('?',chr(0xFF1F)).replace('>',chr(0xFF1E))\
+            .replace('\\',chr(0xFF3C)).replace('/',chr(0xFF1F))\
+            .replace('"',chr(0xFF02)).replace('<',chr(0xFF1C))\
+            .replace(':',chr(0xFF1A)).replace('*',chr(0xFF0A)).replace('|',chr(0xFF5C))
         images =soup.find("div", attrs={'class':'wt_viewer'})
         # 각 화별 디렉터리 생성
-        epidir = './naver webtoon downloader/'+name+f'/{i}. '+title
+        epidir = '.\\naver webtoon downloader\\'+name+f'\\{i}. '+title
         if not os.path.exists(epidir):
             os.mkdir(epidir)
         # 이미지 다운로드
@@ -50,7 +53,6 @@ def NW_url(titleId, epi):
     url = 'https://comic.naver.com/webtoon/detail.nhn?titleId='+f'{titleId}'+'&no='+f'{epi}'
     return url
 
-NW_download(748105, '독립일기', 11, 14)
 
 
 #할 것
