@@ -14,7 +14,7 @@ def NW_download(name):
     titleId, weekday = NW_search(name)
     endEpi = NW_currentEpi(titleId,weekday)
     startEpi = db.select(name)[3]
-    for i in range(startEpi, endEpi+1):
+    for i in range(startEpi+1, endEpi+1):
         # html에서 필요한부분 가져오기
         response = urlopen(NW_url(titleId,i))
         soup = BeautifulSoup(response, 'html.parser')
@@ -23,12 +23,13 @@ def NW_download(name):
             .replace('\\',chr(0xFF3C)).replace('/',chr(0xFF1F))\
             .replace('"',chr(0xFF02)).replace('<',chr(0xFF1C))\
             .replace(':',chr(0xFF1A)).replace('*',chr(0xFF0A)).replace('|',chr(0xFF5C))
-        images =soup.find("div", attrs={'class':'wt_viewer'})
+        images = soup.find("div", attrs={'class':'wt_viewer'})
         # 각 화별 디렉터리 생성
         epidir = '.\\naver webtoon downloader\\'+name+f'\\{i}. '+title
         if not os.path.exists(epidir):
             os.mkdir(epidir)
-        # 이미지 다운로드
+        if os.listdir(epidir) == []:
+            # 이미지 다운로드
             img_url = get_img_url(images)
             num_of_images = get_N_Image(images,titleId,i)
             print(epidir+'/')
@@ -39,7 +40,7 @@ def NW_download(name):
                 urllib.request.urlretrieve(url, location)
                 print('     '+file_name+' <- '+url)
             print(name+f' {i}'+f'/{endEpi} 화 다운로드 완료\n')
-    db.updateRecentEpi(name, endEpi)
+        db.updateRecentEpi(name, i)
     print(name+' 다운로드 완료\n')
         
 
@@ -50,9 +51,10 @@ def get_img_url(images):
 
 # 이미지 개수 얻기
 def get_N_Image(images,titleId,epi):
-    num_of_images = images.find_all('img')[-1]['src'].rstrip('.jpg') \
+    num_of_images = images.parent.select('div.wt_viewer > img')[-2]['src']
+    num_of_images = num_of_images.replace(num_of_images[-4:],'') \
         .replace('https://image-comic.pstatic.net/webtoon/'+f'{titleId}'+'/'+f'{epi}'+'/','')
-    return int(num_of_images.replace(num_of_images[0:55], ''))
+    return int(num_of_images.replace(num_of_images[0:55], ''))+1
 
 def NW_url(titleId, epi):
     url = 'https://comic.naver.com/webtoon/detail.nhn?titleId='+f'{titleId}'+'&no='+f'{epi}'

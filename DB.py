@@ -49,6 +49,12 @@ class DB:
 
     def updateRecentEpi(self, name, recentEpi):
         self.c.execute('UPDATE webtoon_list SET recentEpi = ? WHERE name = ?',(recentEpi,name))
+    
+    def let_0_all(self):
+        self.c.execute('UPDATE webtoon_list SET recentEpi = 0 WHERE recentEpi != 0')
+
+    def let_0(self, name):
+        self.c.execute('UPDATE webtoon_list SET recentEpi = 0 WHERE name = ?',(name,))
 
 db = DB()
 db.start()
