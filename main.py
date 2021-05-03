@@ -1,11 +1,11 @@
-from NW_downloader import NW_download
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
-from DB import db, NW_currentEpi
 import schedule
 import time
 import datetime
 import glob
+from NW_downloader import NW_download
+from DB import db
  
 days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'end']
 
@@ -18,11 +18,8 @@ def update():
         for webtoon in todays:
             print(webtoon)
         for webtoon in todays:
-            current = NW_currentEpi(webtoon[0],webtoon[2])
-            recent = webtoon[3]
-            id = webtoon[0]
             name = webtoon[1]
-            NW_download(id, name, recent+1 ,current)
+            NW_download(name)
     else:
         print('오늘은 다운받을 웹툰이 없습니다.')
     print(schedule.jobs)
