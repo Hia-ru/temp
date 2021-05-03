@@ -1,5 +1,6 @@
 from DB import db
 from NW_downloader import NW_download, NW_search
+import os
 
 def new_webtoon(db, name):
     try:

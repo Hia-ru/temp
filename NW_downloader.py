@@ -14,7 +14,7 @@ def NW_download(name):
     titleId, weekday = NW_search(name)
     endEpi = NW_currentEpi(titleId,weekday)
     startEpi = db.select(name)[3]
-    for i in range(startEpi+1, endEpi+1):
+    for i in range(startEpi, endEpi+1):
         # html에서 필요한부분 가져오기
         response = urlopen(NW_url(titleId,i))
         soup = BeautifulSoup(response, 'html.parser')
