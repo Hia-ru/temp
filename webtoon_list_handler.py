@@ -1,5 +1,5 @@
 from DB import db
-from NW_downloader import NW_download
+from NW_downloader import NW_download, NW_search
 
 def new_webtoon(db, name):
     try:
@@ -37,7 +37,7 @@ while True:
             elif name == 'l':
                 db.view_list()
             elif db.match(name) == True:
-                opt = input('이미 추가된 웹툰입니다. 다운하려면 "d". 취소하려면 "c"')
+                opt = input('이미 추가된 웹툰입니다. 다운하려면 "d". 취소하려면 "c":')
                 if opt == 'd':
                     target = db.select(name)
                     name = target[1]
