@@ -51,13 +51,35 @@ class DB:
         self.c.execute('UPDATE webtoon_list SET recentEpi = ? WHERE name = ?',(recentEpi,name))
     
     def let_0_all(self):
-        self.c.execute('UPDATE webtoon_list SET recentEpi = 0 WHERE recentEpi != 0')
+        self.c.execute('SELECT * FROM webtoon_list')
+        target_list = self.c.fetchall()
+        self.c.execute('UPDATE webtoon_list SET recentEpi = 0')
+        return target_list
 
     def let_0(self, name):
         self.c.execute('UPDATE webtoon_list SET recentEpi = 0 WHERE name = ?',(name,))
 
+    def let_0_except(self, names):
+        self.c.execute('SELECT * FROM webtoon_list WHERE recentEpi != 0')
+        not_0_list = self.c.fetchall()
+        target_list = not_0_list
+        for t in not_0_list:
+            for n in names:
+                if t[1] == n:
+                    target_list.remove(t)
+        for t in target_list:
+            self.let_0(t[1])
+        return target_list
+
+    def new_webtoons(self):
+        self.c.execute('SELECT * FROM webtoon_list WHERE recentEpi == 0')
+        return self.c.fetchall()
+    
+    # def all(self):
+    #     print(self.c.execute('SELECT * FROM webtoon_list WHERE recentEpi != -1'))
+    #     self.c.execute('UPDATE webtoon_list SET recentEpi = 0 WHERE recentEpi != -1')
+    #     print('1')
+
+
 db = DB()
 db.start()
-
-
-
